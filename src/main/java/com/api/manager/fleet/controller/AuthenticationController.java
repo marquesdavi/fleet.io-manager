@@ -1,8 +1,8 @@
-package com.expctrl.controller;
+package com.api.manager.fleet.controller;
 
-import com.expctrl.dto.user.AuthenticationDTO;
-import com.expctrl.dto.user.RegisterDTO;
-import com.expctrl.service.IAuthenticationService;
+import com.api.manager.fleet.dto.user.*;
+import com.api.manager.fleet.service.IAuthenticationService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("auth")
+@Tag(name = "Authentication", description = "User authentication")
 public class AuthenticationController {
     private IAuthenticationService service;
 

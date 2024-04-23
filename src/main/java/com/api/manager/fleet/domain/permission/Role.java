@@ -1,6 +1,6 @@
-package com.expctrl.domain.permission;
+package com.api.manager.fleet.domain.permission;
 
-import com.expctrl.domain.user.User;
+import com.api.manager.fleet.domain.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;

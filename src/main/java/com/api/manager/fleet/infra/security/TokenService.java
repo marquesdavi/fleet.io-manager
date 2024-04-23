@@ -1,12 +1,12 @@
-package com.expctrl.infra.security;
+package com.api.manager.fleet.infra.security;
 
-import com.expctrl.domain.user.User;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import com.api.manager.fleet.domain.user.User;
 
 import java.time.Instant;
 import java.time.LocalDateTime;

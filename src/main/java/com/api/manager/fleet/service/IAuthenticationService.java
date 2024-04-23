@@ -1,12 +1,11 @@
-package com.expctrl.service;
+package com.api.manager.fleet.service;
 
-import com.expctrl.dto.user.AuthenticationDTO;
-import com.expctrl.dto.user.LoginResponseDTO;
-import com.expctrl.dto.user.RegisterDTO;
+import com.api.manager.fleet.dto.user.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-@Service
+
 public interface IAuthenticationService {
     ResponseEntity<LoginResponseDTO> login(AuthenticationDTO authentication);
 

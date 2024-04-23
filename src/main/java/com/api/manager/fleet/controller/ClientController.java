@@ -1,11 +1,11 @@
-package com.expctrl.controller;
+package com.api.manager.fleet.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/expenses")
-public class ExpenseController {
+@RequestMapping("/client")
+public class ClientController {
 
 
 }

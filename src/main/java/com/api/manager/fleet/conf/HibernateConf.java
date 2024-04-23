@@ -1,4 +1,4 @@
-package com.expctrl.conf;
+package com.api.manager.fleet.conf;
 
 import org.apache.tomcat.dbcp.dbcp2.BasicDataSource;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +19,7 @@ public class HibernateConf {
     public LocalSessionFactoryBean sessionFactory() {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
         sessionFactory.setDataSource(dataSource());
-        sessionFactory.setPackagesToScan( new String[] {"com.expctrl.domain"});
+        sessionFactory.setPackagesToScan( new String[] {"com.api.manager.fleet.domain"});
         sessionFactory.setHibernateProperties(hibernateProperties());
 
         return sessionFactory;
@@ -28,9 +28,9 @@ public class HibernateConf {
     @Bean
     public DataSource dataSource() {
         BasicDataSource dataSource = new BasicDataSource();
-        dataSource.setDriverClassName("org.postgresql.Driver");
-        dataSource.setUrl("jdbc:postgresql://localhost:25565/expctrl");
-        dataSource.setUsername("postgres");
+        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        dataSource.setUrl("jdbc:mysql://localhost:3308/fleetio");
+        dataSource.setUsername("user");
         dataSource.setPassword("password");
 
         return dataSource;
@@ -44,15 +44,14 @@ public class HibernateConf {
         return transactionManager;
     }
 
-    private final Properties hibernateProperties() {
+    private Properties hibernateProperties() {
         Properties hibernateProperties = new Properties();
-//        hibernateProperties.setProperty(
-//                "hibernate.hbm2ddl.auto", "create-drop");
+
         hibernateProperties.setProperty(
-                "hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
+                "hibernate.dialect", "org.hibernate.dialect.MySQL8Dialect");
         hibernateProperties.setProperty(
                 "hibernate.show_sql", "true");
-        hibernateProperties.setProperty("hibernate.connection.driver_class", "org.postgresql.Driver");
+        hibernateProperties.setProperty("hibernate.connection.driver_class", "com.mysql.cj.jdbc.Driver");
 
         return hibernateProperties;
     }

@@ -1,6 +1,6 @@
-package com.expctrl.repository;
+package com.api.manager.fleet.repository;
 
-import com.expctrl.domain.permission.Role;
+import com.api.manager.fleet.domain.permission.Role;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;

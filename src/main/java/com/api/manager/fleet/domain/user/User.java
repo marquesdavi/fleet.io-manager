@@ -1,8 +1,6 @@
-package com.expctrl.domain.user;
+package com.api.manager.fleet.domain.user;
 
-import com.expctrl.domain.expense.Expense;
-import com.expctrl.domain.payment.Payment;
-import com.expctrl.domain.permission.Role;
+import com.api.manager.fleet.domain.permission.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
@@ -38,10 +36,6 @@ public class User{
     @JoinColumn(name = "role_id")
     @ToString.Exclude
     private Role role;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @ToString.Exclude
-    private List<Expense> expenses;
 
     public User(String email, String password, String firstName, String lastName, Role role){
         this.email = email;

@@ -1,7 +1,7 @@
-package com.expctrl.infra.security;
+package com.api.manager.fleet.infra.security;
 
-import com.expctrl.domain.user.User;
-import com.expctrl.repository.UserRepository;
+import com.api.manager.fleet.domain.user.User;
+import com.api.manager.fleet.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

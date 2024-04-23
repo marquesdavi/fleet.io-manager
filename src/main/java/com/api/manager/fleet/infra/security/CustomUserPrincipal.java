@@ -1,6 +1,7 @@
-package com.expctrl.infra.security;
+package com.api.manager.fleet.infra.security;
 
-import com.expctrl.domain.user.User;
+
+import com.api.manager.fleet.domain.user.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

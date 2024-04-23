@@ -1,4 +1,4 @@
-package com.expctrl.infra.security;
+package com.api.manager.fleet.infra.security;
 
 import org.springframework.security.core.GrantedAuthority;
 

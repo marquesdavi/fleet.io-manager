@@ -1,15 +1,14 @@
-package com.expctrl.service.implementation;
+package com.api.manager.fleet.service.implementation;
 
-import com.expctrl.domain.permission.Role;
-import com.expctrl.dto.user.AuthenticationDTO;
-import com.expctrl.dto.user.LoginResponseDTO;
-import com.expctrl.dto.user.RegisterDTO;
-import com.expctrl.domain.user.User;
-import com.expctrl.infra.security.CustomUserPrincipal;
-import com.expctrl.infra.security.TokenService;
-import com.expctrl.repository.RoleRepository;
-import com.expctrl.repository.UserRepository;
-import com.expctrl.service.IAuthenticationService;
+import com.api.manager.fleet.domain.permission.Role;
+import com.api.manager.fleet.dto.user.*;
+import com.api.manager.fleet.domain.user.User;
+import com.api.manager.fleet.infra.security.CustomUserPrincipal;
+import com.api.manager.fleet.infra.security.TokenService;
+import com.api.manager.fleet.repository.RoleRepository;
+import com.api.manager.fleet.repository.UserRepository;
+import com.api.manager.fleet.service.IAuthenticationService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +17,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
 
 @Service
 public class AuthenticationServiceImplementation implements IAuthenticationService {
@@ -45,6 +43,7 @@ public class AuthenticationServiceImplementation implements IAuthenticationServi
      * @param data - Authentication data
      * @return - JWT Token
      */
+    @Transactional
     @Override
     public ResponseEntity<LoginResponseDTO> login(AuthenticationDTO data) {
         try{
@@ -66,6 +65,7 @@ public class AuthenticationServiceImplementation implements IAuthenticationServi
      * @param data - Registration data
      * @return - Response Entity
      */
+    @Transactional
     @Override
     public ResponseEntity register(RegisterDTO data) {
         if (this.repository.findByEmail(data.email()) != null) return ResponseEntity.badRequest().build();
