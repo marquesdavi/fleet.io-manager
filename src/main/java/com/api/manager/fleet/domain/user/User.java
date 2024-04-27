@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -15,7 +14,7 @@ import java.util.Objects;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class User{
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,7 +36,7 @@ public class User{
     @ToString.Exclude
     private Role role;
 
-    public User(String email, String password, String firstName, String lastName, Role role){
+    public User(String email, String password, String firstName, String lastName, Role role) {
         this.email = email;
         this.password = password;
         this.firstName = firstName;
@@ -46,19 +45,15 @@ public class User{
     }
 
     @Override
-    public final boolean equals(Object o) {
+    public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
+        if (!(o instanceof User)) return false;
         User user = (User) o;
-        return getId() != null && Objects.equals(getId(), user.getId());
+        return Objects.equals(id, user.id);
     }
 
     @Override
-    public final int hashCode() {
-        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
-

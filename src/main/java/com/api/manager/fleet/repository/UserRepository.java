@@ -11,8 +11,12 @@ import java.util.List;
 @Repository
 public class UserRepository {
 
-    @Autowired
     private SessionFactory sessionFactory;
+
+    @Autowired
+    public UserRepository(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
 
     @Transactional(readOnly = true)
     public User findById(Long id) {

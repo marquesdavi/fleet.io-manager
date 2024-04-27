@@ -2,18 +2,17 @@ package com.api.manager.fleet.infra.security;
 
 
 import com.api.manager.fleet.domain.user.User;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
 
+@RequiredArgsConstructor
 public class CustomUserPrincipal implements UserDetails {
-    private User user;
 
-    public CustomUserPrincipal(User user) {
-        this.user = user;
-    }
+    private final User user;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

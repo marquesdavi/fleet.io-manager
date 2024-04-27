@@ -19,7 +19,6 @@ import org.springframework.context.annotation.Configuration;
                 license = @License(
                         name = "MIT", url = "https://www.apache.org/licenses/LICENSE-2.0"
                 ),
-                termsOfService = "${tos.uri}",
                 description = "Fleet Management System"
         )
 )

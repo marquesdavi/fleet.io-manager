@@ -4,6 +4,7 @@ import com.api.manager.fleet.dto.user.*;
 import com.api.manager.fleet.service.IAuthenticationService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,15 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("auth")
 @Tag(name = "Authentication", description = "User authentication")
+@RequiredArgsConstructor
 public class AuthenticationController {
-    private IAuthenticationService service;
 
-    @Autowired
-    public AuthenticationController(
-            IAuthenticationService service
-    ) {
-        this.service = service;
-    }
+    private final IAuthenticationService service;
 
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody @Valid AuthenticationDTO data) {
