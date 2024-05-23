@@ -48,8 +48,8 @@ public class SecurityConfigurations {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
-                        .requestMatchers(HttpMethod.GET, AUTH_WHITE_LIST).permitAll()
-                        //.requestMatchers("/client/**").hasRole("USER")
+                        //.requestMatchers(AUTH_WHITE_LIST).permitAll()
+                        //.requestMatchers("/customer/**").hasRole("USER")
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);

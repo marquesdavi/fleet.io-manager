@@ -5,6 +5,6 @@ CREATE TABLE vehicles
     brand     VARCHAR(255) NOT NULL,
     plate     VARCHAR(255) NOT NULL UNIQUE,
     year      INT          NOT NULL,
-    client_id BIGINT       NOT NULL,
-    FOREIGN KEY (client_id) REFERENCES clients (id)
+    customer_id BIGINT       NOT NULL,
+    FOREIGN KEY (customer_id) REFERENCES customers (id)
 );

@@ -10,6 +10,7 @@ import com.api.manager.fleet.infra.security.TokenService;
 import com.api.manager.fleet.repository.RoleRepository;
 import com.api.manager.fleet.repository.UserRepository;
 import com.api.manager.fleet.service.IAuthenticationService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,24 +21,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class AuthenticationServiceImplementation implements IAuthenticationService {
-    private AuthenticationManager authenticationManager;
-    private UserRepository repository;
-    private TokenService tokenService;
-    private RoleRepository roleRepository;
-
-    @Autowired
-    public AuthenticationServiceImplementation(
-            AuthenticationManager authenticationManager,
-            UserRepository userRepository,
-            TokenService tokenService,
-            RoleRepository roleRepository
-    ) {
-        this.authenticationManager = authenticationManager;
-        this.repository = userRepository;
-        this.tokenService = tokenService;
-        this.roleRepository = roleRepository;
-    }
+    private final AuthenticationManager authenticationManager;
+    private final UserRepository repository;
+    private final TokenService tokenService;
+    private final RoleRepository roleRepository;
 
     /**
      * @param data - Authentication data
