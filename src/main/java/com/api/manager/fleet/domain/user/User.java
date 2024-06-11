@@ -1,11 +1,14 @@
 package com.api.manager.fleet.domain.user;
 
 import com.api.manager.fleet.domain.permission.Role;
+import com.api.manager.fleet.dto.auth.LoginDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -31,18 +34,21 @@ public class User {
 
     private String password;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "role_id")
-    @ToString.Exclude
-    private Role role;
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "tb_users_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> role;
 
-    public User(String email, String password, String firstName, String lastName, Role role) {
-        this.email = email;
-        this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.role = role;
-    }
+//    public User(String email, String password, String firstName, String lastName, Set<Role> role) {
+//        this.email = email;
+//        this.password = password;
+//        this.firstName = firstName;
+//        this.lastName = lastName;
+//        this.role = role;
+//    }
 
     @Override
     public boolean equals(Object o) {
@@ -55,5 +61,9 @@ public class User {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public boolean isLoginCorrect(LoginDTO loginRequest, PasswordEncoder passwordEncoder) {
+        return passwordEncoder.matches(loginRequest.password(), this.password);
     }
 }

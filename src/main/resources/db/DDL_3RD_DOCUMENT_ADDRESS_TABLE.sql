@@ -1,0 +1,22 @@
+CREATE TABLE IF NOT EXISTS address
+(
+    id         BIGINT PRIMARY KEY AUTO_INCREMENT,
+    number     INT,
+    street     VARCHAR(255),
+    suburb     VARCHAR(255),
+    city       VARCHAR(255) NOT NULL,
+    state      VARCHAR(255) NOT NULL,
+    zip_code   VARCHAR(255) NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS documents
+(
+    id            BIGINT PRIMARY KEY AUTO_INCREMENT,
+    title         VARCHAR(255),
+    number        VARCHAR(30) NOT NULL,
+    document_type ENUM ('CNPJ', 'CPF') NOT NULL,
+    created_at    DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at    DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);

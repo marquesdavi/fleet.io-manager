@@ -1,6 +1,6 @@
 package com.api.manager.fleet.domain.vehicle;
 
-import com.api.manager.fleet.domain.client.Client;
+import com.api.manager.fleet.domain.customer.Customer;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,15 +27,15 @@ public class Vehicle {
     private Integer year;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "client_id", nullable = false)
-    private Client client;
+    @JoinColumn(name = "customer_id", nullable = false)
+    private Customer customer;
 
-    public Vehicle(String model, String brand, String plate, Integer year, Client client) {
+    public Vehicle(String model, String brand, String plate, Integer year, Customer customer) {
         this.model = model;
         this.brand = brand;
         this.plate = plate;
         this.year = year;
-        this.client = client;
+        this.customer = customer;
     }
 }
 

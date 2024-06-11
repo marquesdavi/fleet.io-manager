@@ -9,7 +9,6 @@
 .springBeans
 .sts4-cache
 
-
 # Created by https://www.gitignore.io/api/git,java,maven,eclipse,windows
 
 ### Eclipse ###
@@ -176,6 +175,9 @@ target
 .gradle
 README.html
 .exercism
+
+*.pub
+*.key
 
 .DS_Store
 out/

@@ -25,10 +25,6 @@ public class Role {
 
     private String description;
 
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
-    @ToString.Exclude
-    private List<User> users;
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -41,4 +37,21 @@ public class Role {
     public int hashCode() {
         return Objects.hash(id);
     }
+
+    public enum Values {
+        ADMIN(1L),
+        USER(2L),
+        EMPLOYEE(3L);
+
+        long roleId;
+
+        Values(long roleId) {
+            this.roleId = roleId;
+        }
+
+        public long getRoleId() {
+            return roleId;
+        }
+    }
 }
+
