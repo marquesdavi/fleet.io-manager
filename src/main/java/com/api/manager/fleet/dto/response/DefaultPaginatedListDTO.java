@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.gson.GsonBuilder;
 
+import java.util.Collection;
 import java.util.List;
 
 public class DefaultPaginatedListDTO<T> {
@@ -26,5 +27,13 @@ public class DefaultPaginatedListDTO<T> {
                 .setPrettyPrinting()
                 .create()
                 .toJson(this);
+    }
+
+    public Long getTotalCount() {
+        return this.lastRow;
+    }
+
+    public List<T> getItems() {
+        return this.rows;
     }
 }

@@ -1,15 +1,17 @@
 package com.api.manager.fleet.service;
 
-import com.api.manager.fleet.domain.customer.Customer;
 import com.api.manager.fleet.dto.customer.CreateCustomerDTO;
 import com.api.manager.fleet.dto.customer.CustomerDTO;
+import com.api.manager.fleet.dto.response.DefaultPaginatedListDTO;
 import com.api.manager.fleet.dto.response.DefaultResponseDTO;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Optional;
+
 public interface ICustomerService {
-    ResponseEntity getAll(Integer startRow, Integer endRow);
-    ResponseEntity getById(Long id);
+    Optional<DefaultPaginatedListDTO<CustomerDTO>> getAll(Integer startRow, Integer endRow);
+    CustomerDTO getById(Long id);
     DefaultResponseDTO save(CreateCustomerDTO customer);
-    ResponseEntity updateById(Long id);
-    ResponseEntity deleteById(Long id);
+    DefaultResponseDTO updateById(Long id, CustomerDTO customerDTO);
+    DefaultResponseDTO deleteById(Long id);
 }

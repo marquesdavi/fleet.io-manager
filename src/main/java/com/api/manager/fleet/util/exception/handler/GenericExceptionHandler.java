@@ -4,6 +4,7 @@ import com.api.manager.fleet.dto.response.DefaultResponseDTO;
 import com.api.manager.fleet.util.annotation.pattern.PatternValidation;
 import com.api.manager.fleet.util.error.ValidationError;
 import com.api.manager.fleet.util.exception.CustomerNotFoundException;
+import com.api.manager.fleet.util.exception.GenericException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -27,9 +28,15 @@ public class GenericExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleGenericException(Exception exception) {
+    public ResponseEntity<DefaultResponseDTO> handleUncaughtException(Exception exception) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error: " + exception.getMessage());
+                .body(new DefaultResponseDTO(false, exception.getMessage()));
+    }
+
+    @ExceptionHandler(GenericException.class)
+    public ResponseEntity<DefaultResponseDTO> handleGenericException(GenericException exception) {
+        return ResponseEntity.status(exception.getStatusCode())
+                .body(new DefaultResponseDTO(false, exception.getMessage()));
     }
 
     @ExceptionHandler(ConstraintViolationException.class)

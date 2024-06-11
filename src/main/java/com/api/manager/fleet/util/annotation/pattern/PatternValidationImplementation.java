@@ -18,7 +18,7 @@ public class PatternValidationImplementation implements ConstraintValidator<Patt
     public void initialize(PatternValidation constraintAnnotation) {
         this.type = constraintAnnotation.type();
         this.regexp = constraintAnnotation.regex().isEmpty() ? getBuiltInRegex(type) : constraintAnnotation.regex();
-        this.message = constraintAnnotation.message(); // Store the message from the annotation
+        this.message = constraintAnnotation.message();
     }
 
     @Override
@@ -35,7 +35,7 @@ public class PatternValidationImplementation implements ConstraintValidator<Patt
             }
             return true;
         } catch (Exception e) {
-            throw new GenericException("Problema", HttpStatus.BAD_REQUEST);
+            throw new GenericException("Can't validate the input", HttpStatus.BAD_REQUEST);
         }
     }
 

@@ -9,13 +9,11 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 public record CreateCustomerDTO(
-
         String name,
         @PatternValidation(type = PatternType.EMAIL)
         String email,
         @NotEmpty(message = "The CNPJ field can't be empty!")
         String cnpj,
-
         String phone
 ) {
 }
