@@ -12,6 +12,6 @@ public interface ICustomerService {
     Optional<DefaultPaginatedListDTO<CustomerDTO>> getAll(Integer startRow, Integer endRow);
     CustomerDTO getById(Long id);
     DefaultResponseDTO save(CreateCustomerDTO customer);
-    DefaultResponseDTO updateById(Long id, CustomerDTO customerDTO);
+    DefaultResponseDTO updateById(Long id, CreateCustomerDTO customerDTO);
     DefaultResponseDTO deleteById(Long id);
 }

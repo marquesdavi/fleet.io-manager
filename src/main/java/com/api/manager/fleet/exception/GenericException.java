@@ -1,4 +1,4 @@
-package com.api.manager.fleet.util.exception;
+package com.api.manager.fleet.exception;
 
 import org.springframework.http.HttpStatus;
 
@@ -9,7 +9,7 @@ public class GenericException extends RuntimeException{
         this.status = status;
     }
 
-    public int getStatusCode() {
-        return this.status.value();
+    public HttpStatus getStatusCode() {
+        return this.status;
     }
 }

@@ -1,18 +1,16 @@
 package com.api.manager.fleet.repository;
 
 import com.api.manager.fleet.conf.AutoClosableSession;
-import com.api.manager.fleet.domain.customer.Customer;
 import com.api.manager.fleet.domain.user.User;
-import com.api.manager.fleet.util.exception.GenericException;
+import com.api.manager.fleet.exception.GenericException;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.query.Query;
 import org.hibernate.query.SelectionQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,31 +19,30 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
+@RequiredArgsConstructor
 public class UserRepository {
-
-    private SessionFactory sessionFactory;
-
-    @Autowired
-    public UserRepository(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
+    private static final Logger logger = LoggerFactory.getLogger(UserRepository.class);
+    private final SessionFactory sessionFactory;
 
     @Transactional(readOnly = true)
-    public User findById(Long id) {
-        return sessionFactory.getCurrentSession().get(User.class, id);
+    public Optional<User> findById(Long id) {
+        try (AutoClosableSession session = new AutoClosableSession(sessionFactory.openSession())) {
+            User user = session.delegate().get(User.class, id);
+            return Optional.ofNullable(user);
+        } catch (HibernateException e) {
+            handleException("Error finding user by ID", e);
+            return Optional.empty();
+        }
     }
 
     @Transactional(readOnly = true)
     public Optional<User> findByEmail(String email) {
-        Logger logger = LoggerFactory.getLogger(this.getClass());
-
         logger.info("Finding user with email: {}", email);
-
         try (AutoClosableSession session = new AutoClosableSession(sessionFactory.openSession())) {
-            SelectionQuery<User> query = session.delegate()
-                    .createQuery("SELECT user FROM User as user WHERE user.email = :email", User.class);
+            SelectionQuery<User> query = session.delegate().createSelectionQuery(
+                    "FROM User WHERE email = :email",
+                    User.class);
             query.setParameter("email", email);
-
             User user = query.uniqueResult();
             if (user == null) {
                 logger.info("No user found with email: {}", email);
@@ -59,15 +56,37 @@ public class UserRepository {
         }
     }
 
-
-
     @Transactional
     public void save(User user) {
-        sessionFactory.getCurrentSession().persist(user);
+        Session session = sessionFactory.openSession();
+        Transaction transaction = session.beginTransaction();
+        try {
+            logger.info("Transaction started");
+            session.persist(user);
+            transaction.commit();
+            logger.info("Transaction finished successfully");
+        } catch (HibernateException e) {
+            if (transaction != null){
+                transaction.rollback();
+            }
+            handleException("Error saving user", e);
+        } finally {
+            session.close();
+        }
     }
 
     @Transactional(readOnly = true)
     public List<User> findAll() {
-        return sessionFactory.getCurrentSession().createQuery("from User", User.class).list();
+        try (AutoClosableSession session = new AutoClosableSession(sessionFactory.openSession())) {
+            return session.delegate().createQuery("FROM User", User.class).list();
+        } catch (HibernateException e) {
+            handleException("Error finding all users", e);
+            return List.of();
+        }
+    }
+
+    private void handleException(String message, HibernateException e) {
+        logger.error(message + ": " + e.getMessage());
+        throw new GenericException(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

@@ -1,7 +1,7 @@
 package com.api.manager.fleet.util.annotation.pattern;
 
 
-import com.api.manager.fleet.util.exception.GenericException;
+import com.api.manager.fleet.exception.GenericException;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.http.HttpStatus;

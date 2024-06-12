@@ -1,6 +1,7 @@
 package com.api.manager.fleet.domain.vehicle;
 
 import com.api.manager.fleet.domain.customer.Customer;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,6 +27,7 @@ public class Vehicle {
     @Column(name = "year", nullable = false)
     private Integer year;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
