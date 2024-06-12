@@ -26,13 +26,13 @@ public class CustomerController {
 
     @GetMapping("/")
     @ResponseStatus(value = HttpStatus.OK)
-    @Operation(summary = "This method is used to get the clients.")
     public Optional<DefaultPaginatedListDTO<CustomerDTO>> listAll(
             @RequestParam(defaultValue = "0") Integer startRow,
             @RequestParam(defaultValue = "24") Integer endRow
     ) {
         return service.getAll(startRow, endRow);
     }
+
     @GetMapping("/{id}")
     public CustomerDTO getById(
             @PathVariable() Long id
