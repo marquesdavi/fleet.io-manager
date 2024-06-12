@@ -5,6 +5,7 @@ import com.api.manager.fleet.dto.customer.CustomerDTO;
 import com.api.manager.fleet.dto.response.DefaultPaginatedListDTO;
 import com.api.manager.fleet.dto.response.DefaultResponseDTO;
 import com.api.manager.fleet.service.ICustomerService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,31 +17,30 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
-@RestController
-@PreAuthorize("hasAuthority('SCOPE_ADMIN')")
-@RequestMapping("/customer")
-@Tag(name = "Customer", description = "Customer management")
 @RequiredArgsConstructor
+@RestController(value = "/customer")
+@PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+@Tag(name = "Customer", description = "Customer management")
 public class CustomerController {
     private final ICustomerService service;
 
+    @GetMapping("/")
     @ResponseStatus(value = HttpStatus.OK)
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @Operation(summary = "This method is used to get the clients.")
     public Optional<DefaultPaginatedListDTO<CustomerDTO>> listAll(
             @RequestParam(defaultValue = "0") Integer startRow,
             @RequestParam(defaultValue = "24") Integer endRow
     ) {
         return service.getAll(startRow, endRow);
     }
-
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @GetMapping("/{id}")
     public CustomerDTO getById(
             @PathVariable() Long id
     ) {
         return service.getById(id);
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
+    @PatchMapping("/{id}")
     public DefaultResponseDTO updateById(
             @PathVariable() Long id,
             @RequestBody CreateCustomerDTO customerDTO
