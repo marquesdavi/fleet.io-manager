@@ -1,12 +1,12 @@
-package com.api.manager.fleet.util.exception.handler;
+package com.api.manager.fleet.exception.handler;
 
 import com.api.manager.fleet.dto.response.DefaultResponseDTO;
-import com.api.manager.fleet.util.annotation.pattern.PatternValidation;
 import com.api.manager.fleet.util.error.ValidationError;
-import com.api.manager.fleet.util.exception.CustomerNotFoundException;
-import com.api.manager.fleet.util.exception.GenericException;
+import com.api.manager.fleet.exception.CustomerNotFoundException;
+import com.api.manager.fleet.exception.GenericException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -64,6 +64,16 @@ public class GenericExceptionHandler {
                 ));
 
         return new DefaultResponseDTO(false, errorMap);
+    }
+
+    public static void throwNotFoundException(Logger logger, String message) {
+        logger.error(message);
+        throw new GenericException(message, HttpStatus.NOT_FOUND);
+    }
+
+    public static void throwConflictException(Logger logger, String message) {
+        logger.error(message);
+        throw new GenericException(message, HttpStatus.CONFLICT);
     }
 }
 

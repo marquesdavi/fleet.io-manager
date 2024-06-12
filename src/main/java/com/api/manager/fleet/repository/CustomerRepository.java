@@ -3,8 +3,7 @@ package com.api.manager.fleet.repository;
 import com.api.manager.fleet.conf.AutoClosableSession;
 import com.api.manager.fleet.domain.customer.Customer;
 import com.api.manager.fleet.dto.response.DefaultPaginatedListDTO;
-import com.api.manager.fleet.service.implementation.CustomerService;
-import com.api.manager.fleet.util.exception.GenericException;
+import com.api.manager.fleet.exception.GenericException;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -18,41 +17,35 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
 public class CustomerRepository {
     private final SessionFactory sessionFactory;
-
     private static final Logger logger = LoggerFactory.getLogger(CustomerRepository.class);
 
     @Transactional(readOnly = true)
     public Optional<Customer> findById(Long id) {
-        AutoClosableSession session = new AutoClosableSession(sessionFactory.openSession());
-        try (session) {
-            Customer query = session.delegate()
-                    .find(Customer.class, id);
-
-            return Optional.ofNullable(query);
+        try (AutoClosableSession session = new AutoClosableSession(sessionFactory.openSession())) {
+            Customer customer = session.delegate().find(Customer.class, id);
+            return Optional.ofNullable(customer);
         } catch (HibernateException e) {
-            logger.error("The server could not complete the query!");
-            throw new GenericException("The server could not complete the query!", HttpStatus.INTERNAL_SERVER_ERROR);
+            handleException("Error finding customer by ID", e);
+            return Optional.empty();
         }
     }
 
     @Transactional(readOnly = true)
     public Optional<Customer> findByCnpj(String cnpj) {
-        AutoClosableSession session = new AutoClosableSession(sessionFactory.openSession());
-        try (session) {
-            SelectionQuery<Customer> query = session.delegate()
-                    .createSelectionQuery("SELECT customer FROM Customer as customer WHERE customer.cnpj = :cnpj", Customer.class);
+        try (AutoClosableSession session = new AutoClosableSession(sessionFactory.openSession())) {
+            SelectionQuery<Customer> query = session.delegate().createSelectionQuery(
+                    "SELECT customer FROM Customer as customer WHERE customer.cnpj = :cnpj", Customer.class);
             query.setParameter("cnpj", cnpj);
-
             return Optional.ofNullable(query.uniqueResult());
         } catch (HibernateException e) {
-            throw new GenericException("The server could not complete the query!", HttpStatus.INTERNAL_SERVER_ERROR);
+            handleException("Error finding customer by CNPJ", e);
+            return Optional.empty();
         }
     }
 
@@ -61,16 +54,15 @@ public class CustomerRepository {
         Session session = sessionFactory.openSession();
         Transaction transaction = session.beginTransaction();
         try {
-            logger.info("Transaction started");
+            logger.info("Saving customer");
             session.persist(customer);
             transaction.commit();
-            logger.info("Transaction finished successfully");
+            logger.info("Customer saved successfully");
         } catch (HibernateException e) {
             if (transaction != null){
                 transaction.rollback();
             }
-            logger.error("Transaction failed " + e.getMessage());
-            throw new GenericException("Cannot persist the customer! Error: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            handleException("Error saving customer", e);
         } finally {
             session.close();
         }
@@ -78,13 +70,10 @@ public class CustomerRepository {
 
     @Transactional(readOnly = true)
     public Optional<DefaultPaginatedListDTO<Customer>> findAll(Integer startRow, Integer maxResults) {
-        var session = new AutoClosableSession(sessionFactory.openSession());
-        try (session) {
+        try (AutoClosableSession session = new AutoClosableSession(sessionFactory.openSession())) {
             String queryString = "SELECT customer FROM Customer as customer";
             SelectionQuery<Customer> query = session.delegate().createQuery(queryString, Customer.class);
-
-            Query<Long> countQuery = session.delegate()
-                    .createQuery("SELECT count(*) FROM Customer as customer", Long.class);
+            Query<Long> countQuery = session.delegate().createQuery("SELECT count(*) FROM Customer as customer", Long.class);
 
             query.setFirstResult(startRow);
             query.setMaxResults(maxResults);
@@ -93,11 +82,10 @@ public class CustomerRepository {
                     countQuery.uniqueResult(),
                     query.stream().toList()
             );
-
             return Optional.of(item);
         } catch (HibernateException e) {
-            logger.error("The server could not complete the query: " + e.getMessage());
-            throw new GenericException("The server could not complete the query!", HttpStatus.INTERNAL_SERVER_ERROR);
+            handleException("Error finding all customers", e);
+            return Optional.empty();
         }
     }
 
@@ -106,13 +94,15 @@ public class CustomerRepository {
         Session session = sessionFactory.openSession();
         Transaction transaction = session.beginTransaction();
         try {
-            logger.info("Transaction started");
+            logger.info("Deleting customer");
             session.remove(customer);
             transaction.commit();
-            logger.info("Transaction finished successfully");
+            logger.info("Customer deleted successfully");
         } catch (HibernateException e) {
-            logger.error("Transaction failed " + e.getMessage());
-            throw new GenericException("The server could not complete the query!", HttpStatus.INTERNAL_SERVER_ERROR);
+            if (transaction != null){
+                transaction.rollback();
+            }
+            handleException("Error deleting customer", e);
         } finally {
             session.close();
         }
@@ -128,10 +118,17 @@ public class CustomerRepository {
             transaction.commit();
             logger.info("Transaction finished successfully");
         } catch (HibernateException e) {
-            logger.error("Transaction failed " + e.getMessage());
-            throw new GenericException("The server could not complete the query!", HttpStatus.INTERNAL_SERVER_ERROR);
+            if (transaction != null){
+                transaction.rollback();
+            }
+            handleException("Error updating customer", e);
         } finally {
             session.close();
         }
+    }
+
+    private void handleException(String message, HibernateException e) {
+        logger.error(message + ": " + e.getMessage());
+        throw new GenericException(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

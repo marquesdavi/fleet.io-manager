@@ -1,4 +1,4 @@
-package com.api.manager.fleet.util.exception;
+package com.api.manager.fleet.exception;
 
 import org.springframework.http.HttpStatus;
 

@@ -43,7 +43,7 @@ public class CustomerController {
     @RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
     public DefaultResponseDTO updateById(
             @PathVariable() Long id,
-            @Valid @RequestBody CustomerDTO customerDTO
+            @RequestBody CreateCustomerDTO customerDTO
     ) {
         return service.updateById(id, customerDTO);
     }

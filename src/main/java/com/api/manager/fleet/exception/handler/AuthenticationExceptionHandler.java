@@ -1,4 +1,4 @@
-package com.api.manager.fleet.util.exception.handler;
+package com.api.manager.fleet.exception.handler;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
