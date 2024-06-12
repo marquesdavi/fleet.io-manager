@@ -10,6 +10,7 @@ import com.api.manager.fleet.exception.CustomerNotFoundException;
 import com.api.manager.fleet.mapper.CustomerDTOMapper;
 import com.api.manager.fleet.repository.CustomerRepository;
 import com.api.manager.fleet.service.ICustomerService;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,10 @@ public class CustomerService implements ICustomerService {
     private static final Logger logger = LoggerFactory.getLogger(CustomerService.class);
 
     @Override
-    public Optional<DefaultPaginatedListDTO<CustomerDTO>> getAll(Integer startRow, Integer maxResults) {
+    public Optional<DefaultPaginatedListDTO<CustomerDTO>> getAll(
+            @PositiveOrZero Integer startRow,
+            @PositiveOrZero Integer maxResults
+    ) {
         logger.info("Fetching all customers from row {} to {}", startRow, maxResults);
 
         if (startRow > maxResults) {
@@ -114,7 +118,7 @@ public class CustomerService implements ICustomerService {
                 .orElseThrow(() -> {
                     String message = "The Customer with ID " + id + " doesn't exist!";
                     logger.error(message);
-                    throw new CustomerNotFoundException(message);
+                    return new CustomerNotFoundException(message);
                 });
     }
 

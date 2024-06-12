@@ -34,7 +34,7 @@ public class AuthenticationService implements IAuthenticationService {
         }
 
         var now = Instant.now();
-        var expiresIn = 300L;
+        var expiresIn = 500L;
 
         var scopes = user.get().getRole()
                 .stream()
@@ -42,7 +42,7 @@ public class AuthenticationService implements IAuthenticationService {
                 .collect(Collectors.joining(" "));
 
         var claims = JwtClaimsSet.builder()
-                .issuer("mybackend")
+                .issuer("fleetioauth")
                 .subject(user.get().getId().toString())
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(expiresIn))
