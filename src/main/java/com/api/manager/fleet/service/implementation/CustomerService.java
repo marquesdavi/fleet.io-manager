@@ -5,8 +5,8 @@ import com.api.manager.fleet.dto.customer.CreateCustomerDTO;
 import com.api.manager.fleet.dto.customer.CustomerDTO;
 import com.api.manager.fleet.dto.response.DefaultPaginatedListDTO;
 import com.api.manager.fleet.dto.response.DefaultResponseDTO;
-import com.api.manager.fleet.exception.CustomerAlreadyExistsException;
-import com.api.manager.fleet.exception.CustomerNotFoundException;
+import com.api.manager.fleet.exception.NotFoundException;
+import com.api.manager.fleet.exception.AlreadyExistsException;
 import com.api.manager.fleet.mapper.CustomerDTOMapper;
 import com.api.manager.fleet.repository.CustomerRepository;
 import com.api.manager.fleet.service.ICustomerService;
@@ -14,7 +14,6 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -118,7 +117,7 @@ public class CustomerService implements ICustomerService {
                 .orElseThrow(() -> {
                     String message = "The Customer with ID " + id + " doesn't exist!";
                     logger.error(message);
-                    return new CustomerNotFoundException(message);
+                    return new NotFoundException(message);
                 });
     }
 
@@ -126,7 +125,7 @@ public class CustomerService implements ICustomerService {
         if (repository.findByCnpj(cnpj).isPresent()) {
             String message = "A Customer with CNPJ " + cnpj + " already exists!";
             logger.error(message);
-            throw new CustomerAlreadyExistsException(message, HttpStatus.CONFLICT);
+            throw new AlreadyExistsException(message);
         }
     }
 }

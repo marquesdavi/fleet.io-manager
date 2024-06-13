@@ -3,8 +3,8 @@ package com.api.manager.fleet.service.implementation;
 import com.api.manager.fleet.domain.permission.Role;
 import com.api.manager.fleet.domain.user.User;
 import com.api.manager.fleet.dto.user.RegisterDTO;
-import com.api.manager.fleet.exception.RoleNotFoundException;
-import com.api.manager.fleet.exception.UserAlreadyExistsException;
+import com.api.manager.fleet.exception.NotFoundException;
+import com.api.manager.fleet.exception.AlreadyExistsException;
 import com.api.manager.fleet.mapper.UserDTOMapper;
 import com.api.manager.fleet.repository.RoleRepository;
 import com.api.manager.fleet.repository.UserRepository;
@@ -37,12 +37,12 @@ public class UserService implements IUserService {
         Role userRole = roleRepository.findByName(Role.Values.USER.name())
                 .orElseThrow(() -> {
                     logger.error("USER role not found!");
-                    return new RoleNotFoundException("USER role not found");
+                    return new NotFoundException("USER role not found");
                 });
 
         userRepository.findByEmail(dto.email()).ifPresent(existingUser -> {
             logger.warn("User with email {} already exists!", dto.email());
-            throw new UserAlreadyExistsException("User already exists");
+            throw new AlreadyExistsException("User already exists");
         });
 
         User user = userDTOMapper.toEntity(dto, Set.of(userRole));

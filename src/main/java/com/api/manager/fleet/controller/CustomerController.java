@@ -18,8 +18,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
 @RequiredArgsConstructor
-@RestController(value = "/customer")
-@PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+@RestController
+@RequestMapping("/customer")
+@PreAuthorize("hasAuthority('ADMIN')")
 @Tag(name = "Customer", description = "Customer management")
 public class CustomerController {
     private final ICustomerService service;

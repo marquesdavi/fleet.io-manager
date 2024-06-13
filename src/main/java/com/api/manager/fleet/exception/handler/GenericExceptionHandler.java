@@ -2,7 +2,7 @@ package com.api.manager.fleet.exception.handler;
 
 import com.api.manager.fleet.dto.response.DefaultResponseDTO;
 import com.api.manager.fleet.util.error.ValidationError;
-import com.api.manager.fleet.exception.CustomerNotFoundException;
+import com.api.manager.fleet.exception.NotFoundException;
 import com.api.manager.fleet.exception.GenericException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -22,8 +22,8 @@ import java.util.Map;
 @RestControllerAdvice
 public class GenericExceptionHandler {
 
-    @ExceptionHandler(CustomerNotFoundException.class)
-    public ResponseEntity<String> handleCustomerNotFoundException(CustomerNotFoundException exception) {
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<String> handleCustomerNotFoundException(NotFoundException exception) {
         return ResponseEntity.status(exception.getStatusCode()).body(exception.getMessage());
     }
 
@@ -64,16 +64,6 @@ public class GenericExceptionHandler {
                 ));
 
         return new DefaultResponseDTO(false, errorMap);
-    }
-
-    public static void throwNotFoundException(Logger logger, String message) {
-        logger.error(message);
-        throw new GenericException(message, HttpStatus.NOT_FOUND);
-    }
-
-    public static void throwConflictException(Logger logger, String message) {
-        logger.error(message);
-        throw new GenericException(message, HttpStatus.CONFLICT);
     }
 }
 
