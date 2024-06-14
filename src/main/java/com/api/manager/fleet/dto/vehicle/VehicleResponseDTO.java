@@ -1,10 +1,13 @@
 package com.api.manager.fleet.dto.vehicle;
 
-public record CreateVehicleDTO(
+import java.math.BigInteger;
+
+public record VehicleResponseDTO(
         Long id,
         String model,
         String brand,
         String plate,
-        Integer year
+        Integer year,
+        BigInteger customer
 ) {
 }

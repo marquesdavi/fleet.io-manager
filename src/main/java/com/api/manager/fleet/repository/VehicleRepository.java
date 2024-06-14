@@ -5,24 +5,26 @@ import com.api.manager.fleet.domain.vehicle.Vehicle;
 import com.api.manager.fleet.dto.response.DefaultPaginatedListDTO;
 import com.api.manager.fleet.exception.GenericException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.hibernate.query.SelectionQuery;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class VehicleRepository {
     private final SessionFactory sessionFactory;
-    private static final Logger logger = LoggerFactory.getLogger(VehicleRepository.class);
 
     @Transactional(readOnly = true)
     public Optional<Vehicle> findById(Long id) {
@@ -30,40 +32,144 @@ public class VehicleRepository {
             Vehicle vehicle = session.delegate().find(Vehicle.class, id);
             return Optional.ofNullable(vehicle);
         } catch (HibernateException e) {
-            handleException("Error finding vehicle by ID", e);
-            return Optional.empty();
+            throw handleException("Error finding vehicle by ID", e);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Vehicle> findByPlateAndCustomerId(String plate, BigInteger customerId) {
+        try (AutoClosableSession session = new AutoClosableSession(sessionFactory.openSession())) {
+            SelectionQuery<Vehicle> vehicle = session.delegate().createSelectionQuery(
+                    "select vcl from Vehicle as vcl where vcl.plate = :plate and vcl.customer = :customer",
+                    Vehicle.class);
+
+            vehicle.setParameter("plate", plate);
+            vehicle.setParameter("customer", customerId);
+
+            return Optional.ofNullable(vehicle.uniqueResult());
+        } catch (HibernateException e) {
+            throw handleException("Error finding vehicle by ID and CustomerId", e);
         }
     }
 
     @Transactional
-    public void save(Vehicle user) {
-        sessionFactory.getCurrentSession().persist(user);
+    public Vehicle save(Vehicle vehicle) {
+        Session session = sessionFactory.openSession();
+        Transaction transaction = session.beginTransaction();
+        try {
+            log.info("Saving vehicle");
+            session.save(vehicle);
+            transaction.commit();
+            log.info("Vehicle saved successfully");
+            return vehicle;
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw handleException("Error saving vehicle", e);
+        } finally {
+            session.close();
+        }
+    }
+
+    @Transactional
+    public void delete(Vehicle vehicle) {
+        Session session = sessionFactory.openSession();
+        Transaction transaction = session.beginTransaction();
+        try {
+            log.info("Deleting vehicle");
+            session.remove(vehicle);
+            transaction.commit();
+            log.info("Vehicle deleted successfully");
+        } catch (HibernateException e) {
+            if (transaction != null){
+                transaction.rollback();
+            }
+            throw handleException("Error deleting vehicle", e);
+        } finally {
+            session.close();
+        }
     }
 
     @Transactional(readOnly = true)
-    public Optional<DefaultPaginatedListDTO<Vehicle>> findAll(Integer startRow, Integer maxResults) {
-        try (AutoClosableSession session = new AutoClosableSession(sessionFactory.openSession())) {
-            String queryString = "SELECT vehicle FROM Vehicle as vehicle";
-            SelectionQuery<Vehicle> query = session.delegate().createQuery(queryString, Vehicle.class);
-            Query<Long> countQuery = session.delegate().createQuery("SELECT count(*) FROM Vehicle as vehicle", Long.class);
+    public Optional<DefaultPaginatedListDTO<Vehicle>> findAll(Integer startRow, Integer maxResults, Optional<String> plate, Optional<BigInteger> customerId) {
+        try (Session session = sessionFactory.openSession()) {
+            StringBuilder queryString = new StringBuilder("select v from Vehicle v");
+            StringBuilder countQueryString = new StringBuilder("select count(v) from Vehicle v");
+
+            boolean whereAdded = false;
+
+            if (plate.isPresent()) {
+                queryString.append(whereAdded ? " and" : " where").append(" v.plate = :plate");
+                countQueryString.append(whereAdded ? " and" : " where").append(" v.plate = :plate");
+                whereAdded = true;
+            }
+
+            if (customerId.isPresent()) {
+                queryString.append(whereAdded ? " and" : " where").append(" v.customer = :customer");
+                countQueryString.append(whereAdded ? " and" : " where").append(" v.customer = :customer");
+            }
+
+            Query<Vehicle> query = session.createQuery(queryString.toString(), Vehicle.class);
+            Query<Long> countQuery = session.createQuery(countQueryString.toString(), Long.class);
+
+            plate.ifPresent(p -> {
+                query.setParameter("plate", p);
+                countQuery.setParameter("plate", p);
+            });
+
+            customerId.ifPresent(id -> {
+                query.setParameter("customer", id);
+                countQuery.setParameter("customer", id);
+            });
 
             query.setFirstResult(startRow);
             query.setMaxResults(maxResults);
 
-            DefaultPaginatedListDTO<Vehicle> item = new DefaultPaginatedListDTO<>(
-                    countQuery.uniqueResult(),
-                    query.stream().toList()
-            );
+            List<Vehicle> vehicles = query.getResultList();
+            Long totalCount = countQuery.getSingleResult();
+
+            DefaultPaginatedListDTO<Vehicle> item = new DefaultPaginatedListDTO<>(totalCount, vehicles);
             return Optional.of(item);
         } catch (HibernateException e) {
-            handleException("Error finding all vehicles", e);
-            return Optional.empty();
+            throw handleException("Error finding all vehicles", e);
         }
     }
 
-    private void handleException(String message, HibernateException e) {
-        logger.error(message + ": " + e.getMessage());
-        throw new GenericException(message, HttpStatus.INTERNAL_SERVER_ERROR);
+    @Transactional(readOnly = true)
+    public Optional<Vehicle> findByPlate(String plate) {
+        try (AutoClosableSession session = new AutoClosableSession(sessionFactory.openSession())) {
+            SelectionQuery<Vehicle> query = session.delegate().createSelectionQuery(
+                    "select vcl from Vehicle as vcl where vcl.plate = :plate", Vehicle.class);
+            query.setParameter("plate", plate);
+            return Optional.ofNullable(query.uniqueResult());
+        } catch (HibernateException e) {
+            throw handleException("Error finding vehicle by PLATE", e);
+        }
+    }
+
+    @Transactional
+    public void update(Vehicle vehicle) {
+        Session session = sessionFactory.openSession();
+        Transaction transaction = session.beginTransaction();
+        try {
+            log.info("Transaction started");
+            session.merge(vehicle);
+            transaction.commit();
+            log.info("Transaction finished successfully");
+        } catch (HibernateException e) {
+            if (transaction != null){
+                transaction.rollback();
+            }
+            throw handleException("Error updating vehicle", e);
+        } finally {
+            session.close();
+        }
+    }
+
+    private GenericException handleException(String message, HibernateException e) {
+        log.error(message + ": " + e.getMessage());
+        return new GenericException(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

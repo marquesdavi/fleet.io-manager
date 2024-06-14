@@ -7,8 +7,7 @@ import com.api.manager.fleet.dto.auth.TokenDTO;
 import com.api.manager.fleet.repository.UserRepository;
 import com.api.manager.fleet.service.IAuthenticationService;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -21,10 +20,10 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService implements IAuthenticationService {
-    private static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
 
     private final JwtEncoder jwtEncoder;
     private final UserRepository userRepository;
@@ -38,7 +37,7 @@ public class AuthenticationService implements IAuthenticationService {
         Optional<User> user = userRepository.findByEmail(request.email());
 
         if (user.isEmpty() || !user.get().isLoginCorrect(request, passwordEncoder)) {
-            logger.warn("Failed login attempt for email: {}", request.email());
+            log.warn("Failed login attempt for email: {}", request.email());
             throw new BadCredentialsException("User or password is invalid!");
         }
 
@@ -56,7 +55,7 @@ public class AuthenticationService implements IAuthenticationService {
                 .expiresAt(now.plusSeconds(expiresIn))
                 .claim("scope", scopes)
                 .claim("roles", user.get().getRole().stream()
-                        .map(Role::getName) // Ensure role prefix
+                        .map(Role::getName) 
                         .collect(Collectors.toList()))
                 .build();
 

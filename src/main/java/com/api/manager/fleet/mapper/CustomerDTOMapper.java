@@ -22,19 +22,6 @@ public class CustomerDTOMapper {
         );
     }
 
-    public CreateCustomerDTO toCreateDTO(Customer customer) {
-        if (customer == null) {
-            return null;
-        }
-        return new CreateCustomerDTO(
-                customer.getName(),
-                customer.getEmail(),
-                customer.getCnpj(),
-                customer.getPhone()
-        );
-    }
-
-
     public Customer toEntity(CreateCustomerDTO customerDTO) {
         if (customerDTO == null) {
             return null;

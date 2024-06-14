@@ -12,39 +12,39 @@ import com.api.manager.fleet.repository.CustomerRepository;
 import com.api.manager.fleet.service.ICustomerService;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CustomerService implements ICustomerService {
     private final CustomerRepository repository;
     private final CustomerDTOMapper customerDTOMapper;
-    private static final Logger logger = LoggerFactory.getLogger(CustomerService.class);
 
     @Override
     public Optional<DefaultPaginatedListDTO<CustomerDTO>> getAll(
             @PositiveOrZero Integer startRow,
             @PositiveOrZero Integer maxResults
     ) {
-        logger.info("Fetching all customers from row {} to {}", startRow, maxResults);
+        log.info("Fetching all customers from row {} to {}", startRow, maxResults);
 
         if (startRow > maxResults) {
-            logger.warn("Invalid pagination parameters: startRow {} is greater than maxResults {}", startRow, maxResults);
+            log.warn("Invalid pagination parameters: startRow {} is greater than maxResults {}", startRow, maxResults);
             throw new IllegalArgumentException("startRow can't be greater than maxResults");
         }
 
         Optional<DefaultPaginatedListDTO<Customer>> result = repository.findAll(startRow, maxResults);
 
         if (result.isPresent()) {
-            logger.info("Fetched {} customers", result.get().getItems().size());
+            log.info("Fetched {} customers", result.get().getItems().size());
         } else {
-            logger.info("No customers found for the given pagination parameters.");
+            log.info("No customers found for the given pagination parameters.");
         }
 
         return result.map(paginatedList -> new DefaultPaginatedListDTO<>(
@@ -57,19 +57,19 @@ public class CustomerService implements ICustomerService {
 
     @Override
     public CustomerDTO getById(Long id) {
-        logger.info("Fetching customer with ID {}", id);
+        log.info("Fetching customer with ID {}", id);
         return customerDTOMapper.toDTO(findCustomerById(id));
     }
 
     @Transactional
     @Override
     public DefaultResponseDTO save(CreateCustomerDTO customer) {
-        logger.info("Saving new customer with CNPJ {}", customer.cnpj());
+        log.info("Saving new customer with CNPJ {}", customer.cnpj());
         checkIfCustomerExistsByCnpj(customer.cnpj());
 
         Customer instance = customerDTOMapper.toEntity(customer);
         repository.save(instance);
-        logger.info("Customer with CNPJ {} successfully saved", customer.cnpj());
+        log.info("Customer with CNPJ {} successfully saved", customer.cnpj());
 
         return new DefaultResponseDTO(true, "Customer successfully registered!");
     }
@@ -77,7 +77,7 @@ public class CustomerService implements ICustomerService {
     @Transactional
     @Override
     public DefaultResponseDTO updateById(Long id, CreateCustomerDTO customerDTO) {
-        logger.info("Updating customer with ID {}", id);
+        log.info("Updating customer with ID {}", id);
         Customer existingCustomer = findCustomerById(id);
 
         if (customerDTO.name() != null) {
@@ -96,27 +96,26 @@ public class CustomerService implements ICustomerService {
 
         repository.update(existingCustomer);
 
-        logger.info("Customer with ID {} successfully updated", id);
+        log.info("Customer with ID {} successfully updated", id);
         return new DefaultResponseDTO(true, "Customer successfully updated!");
     }
-
 
     @Transactional
     @Override
     public DefaultResponseDTO deleteById(Long id) {
-        logger.info("Deleting customer with ID {}", id);
+        log.info("Deleting customer with ID {}", id);
         Customer customer = findCustomerById(id);
         repository.delete(customer);
 
-        logger.info("Customer with ID {} successfully deleted", id);
+        log.info("Customer with ID {} successfully deleted", id);
         return new DefaultResponseDTO(true, "Customer successfully deleted!");
     }
 
-    private Customer findCustomerById(Long id) {
+    public Customer findCustomerById(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> {
                     String message = "The Customer with ID " + id + " doesn't exist!";
-                    logger.error(message);
+                    log.error(message);
                     return new NotFoundException(message);
                 });
     }
@@ -124,7 +123,7 @@ public class CustomerService implements ICustomerService {
     private void checkIfCustomerExistsByCnpj(String cnpj) {
         if (repository.findByCnpj(cnpj).isPresent()) {
             String message = "A Customer with CNPJ " + cnpj + " already exists!";
-            logger.error(message);
+            log.error(message);
             throw new AlreadyExistsException(message);
         }
     }

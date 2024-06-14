@@ -4,9 +4,7 @@ import com.api.manager.fleet.dto.response.DefaultResponseDTO;
 import com.api.manager.fleet.util.error.ValidationError;
 import com.api.manager.fleet.exception.NotFoundException;
 import com.api.manager.fleet.exception.GenericException;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -39,23 +37,23 @@ public class GenericExceptionHandler {
                 .body(new DefaultResponseDTO(false, exception.getMessage()));
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ConstraintViolationException.class)
-    public DefaultResponseDTO handleConstraintViolationException(ConstraintViolationException ex) {
+    public List<ValidationError> handleConstraintViolationException(ConstraintViolationException ex) {
         List<ValidationError> errors = new ArrayList<>();
-        for (ConstraintViolation constraintViolation : ex.getConstraintViolations()) {
+        ex.getConstraintViolations().forEach(constraintViolation -> {
             String fieldName = constraintViolation.getPropertyPath().toString();
             String message = constraintViolation.getMessage();
             Object invalidValue = constraintViolation.getInvalidValue();
-
             errors.add(new ValidationError(fieldName, message, invalidValue));
-        }
+        });
 
-        return new DefaultResponseDTO(false, errors);
+        return errors;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public DefaultResponseDTO handleInvalidArgument(MethodArgumentNotValidException exception) {
+    public Map<String, String> handleInvalidArgument(MethodArgumentNotValidException exception) {
         Map<String, String> errorMap = new HashMap<>();
         exception.getBindingResult().getFieldErrors().forEach(
                 error -> errorMap.put(
@@ -63,7 +61,7 @@ public class GenericExceptionHandler {
                         error.getDefaultMessage()
                 ));
 
-        return new DefaultResponseDTO(false, errorMap);
+        return errorMap;
     }
 }
 

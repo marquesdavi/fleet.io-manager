@@ -4,13 +4,12 @@ import com.api.manager.fleet.conf.AutoClosableSession;
 import com.api.manager.fleet.domain.user.User;
 import com.api.manager.fleet.exception.GenericException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.SelectionQuery;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,10 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class UserRepository {
-    private static final Logger logger = LoggerFactory.getLogger(UserRepository.class);
     private final SessionFactory sessionFactory;
 
     @Transactional(readOnly = true)
@@ -37,7 +36,7 @@ public class UserRepository {
 
     @Transactional(readOnly = true)
     public Optional<User> findByEmail(String email) {
-        logger.info("Finding user with email: {}", email);
+        log.info("Finding user with email: {}", email);
         try (AutoClosableSession session = new AutoClosableSession(sessionFactory.openSession())) {
             SelectionQuery<User> query = session.delegate().createSelectionQuery(
                     "FROM User WHERE email = :email",
@@ -45,13 +44,13 @@ public class UserRepository {
             query.setParameter("email", email);
             User user = query.uniqueResult();
             if (user == null) {
-                logger.info("No user found with email: {}", email);
+                log.info("No user found with email: {}", email);
                 return Optional.empty();
             }
-            logger.info("User found with email: {}", email);
+            log.info("User found with email: {}", email);
             return Optional.of(user);
         } catch (HibernateException e) {
-            logger.error("Error finding user with email: {}", email, e);
+            log.error("Error finding user with email: {}", email, e);
             throw new GenericException("The server could not complete the query!", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -61,10 +60,10 @@ public class UserRepository {
         Session session = sessionFactory.openSession();
         Transaction transaction = session.beginTransaction();
         try {
-            logger.info("Transaction started");
+            log.info("Transaction started");
             session.persist(user);
             transaction.commit();
-            logger.info("Transaction finished successfully");
+            log.info("Transaction finished successfully");
         } catch (HibernateException e) {
             if (transaction != null){
                 transaction.rollback();
@@ -86,7 +85,7 @@ public class UserRepository {
     }
 
     private void handleException(String message, HibernateException e) {
-        logger.error(message + ": " + e.getMessage());
+        log.error(message + ": " + e.getMessage());
         throw new GenericException(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

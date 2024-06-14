@@ -55,8 +55,6 @@ public class Customer implements Serializable {
     @UpdateTimestamp
     private String updatedAt;
 
-
-
     public Customer(String name, String email, String cnpj, String phone) {
         this.name = name;
         this.email = email;
