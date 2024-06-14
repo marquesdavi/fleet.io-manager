@@ -40,7 +40,5 @@
 **Infrastructure:** Docker, Docker Compose
 
 
-
-
 ## 📃 License
 #### MIT License © [Daví Marques](https://github.com/marquesdavi). To learn more, check the license file by [CLICKING HERE](LICENSE.md).

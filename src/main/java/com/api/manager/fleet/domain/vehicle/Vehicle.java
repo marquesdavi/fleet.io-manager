@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigInteger;
+
 @Entity
 @Table(name = "vehicles")
 @Data
@@ -27,12 +29,10 @@ public class Vehicle {
     @Column(name = "year", nullable = false)
     private Integer year;
 
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id", nullable = false)
-    private Customer customer;
+    @Column(name = "customer_id")
+    private BigInteger customer;
 
-    public Vehicle(String model, String brand, String plate, Integer year, Customer customer) {
+    public Vehicle(String model, String brand, String plate, Integer year, BigInteger customer) {
         this.model = model;
         this.brand = brand;
         this.plate = plate;

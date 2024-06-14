@@ -4,22 +4,21 @@ import com.api.manager.fleet.conf.AutoClosableSession;
 import com.api.manager.fleet.domain.permission.Role;
 import com.api.manager.fleet.exception.GenericException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.SelectionQuery;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class RoleRepository {
     private final SessionFactory sessionFactory;
-    private static final Logger logger = LoggerFactory.getLogger(RoleRepository.class);
 
     @Transactional(readOnly = true)
     public Optional<Role> findByName(String name) {
@@ -36,9 +35,8 @@ public class RoleRepository {
     }
 
 
-
     private void handleException(String message, HibernateException e) {
-        logger.error(message + ": " + e.getMessage());
+        log.error(message + ": " + e.getMessage());
         throw new GenericException(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

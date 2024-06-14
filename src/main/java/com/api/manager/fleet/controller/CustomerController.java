@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,14 +19,16 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
 @RequiredArgsConstructor
-@RestController(value = "/customer")
-@PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+@RestController
+@RequestMapping("/customer")
+@PreAuthorize("hasAuthority('ADMIN')")
 @Tag(name = "Customer", description = "Customer management")
 public class CustomerController {
     private final ICustomerService service;
 
     @GetMapping("/")
     @ResponseStatus(value = HttpStatus.OK)
+    @Cacheable(value = "customer-find-all")
     public Optional<DefaultPaginatedListDTO<CustomerDTO>> listAll(
             @RequestParam(defaultValue = "0") Integer startRow,
             @RequestParam(defaultValue = "24") Integer endRow
@@ -34,6 +37,7 @@ public class CustomerController {
     }
 
     @GetMapping("/{id}")
+    @Cacheable(value = "customer-find-id")
     public CustomerDTO getById(
             @PathVariable() Long id
     ) {

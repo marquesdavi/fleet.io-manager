@@ -2,11 +2,9 @@ package com.api.manager.fleet.exception.handler;
 
 import com.api.manager.fleet.dto.response.DefaultResponseDTO;
 import com.api.manager.fleet.util.error.ValidationError;
-import com.api.manager.fleet.exception.CustomerNotFoundException;
+import com.api.manager.fleet.exception.NotFoundException;
 import com.api.manager.fleet.exception.GenericException;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -22,8 +20,8 @@ import java.util.Map;
 @RestControllerAdvice
 public class GenericExceptionHandler {
 
-    @ExceptionHandler(CustomerNotFoundException.class)
-    public ResponseEntity<String> handleCustomerNotFoundException(CustomerNotFoundException exception) {
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<String> handleCustomerNotFoundException(NotFoundException exception) {
         return ResponseEntity.status(exception.getStatusCode()).body(exception.getMessage());
     }
 
@@ -39,23 +37,23 @@ public class GenericExceptionHandler {
                 .body(new DefaultResponseDTO(false, exception.getMessage()));
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ConstraintViolationException.class)
-    public DefaultResponseDTO handleConstraintViolationException(ConstraintViolationException ex) {
+    public List<ValidationError> handleConstraintViolationException(ConstraintViolationException ex) {
         List<ValidationError> errors = new ArrayList<>();
-        for (ConstraintViolation constraintViolation : ex.getConstraintViolations()) {
+        ex.getConstraintViolations().forEach(constraintViolation -> {
             String fieldName = constraintViolation.getPropertyPath().toString();
             String message = constraintViolation.getMessage();
             Object invalidValue = constraintViolation.getInvalidValue();
-
             errors.add(new ValidationError(fieldName, message, invalidValue));
-        }
+        });
 
-        return new DefaultResponseDTO(false, errors);
+        return errors;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public DefaultResponseDTO handleInvalidArgument(MethodArgumentNotValidException exception) {
+    public Map<String, String> handleInvalidArgument(MethodArgumentNotValidException exception) {
         Map<String, String> errorMap = new HashMap<>();
         exception.getBindingResult().getFieldErrors().forEach(
                 error -> errorMap.put(
@@ -63,17 +61,7 @@ public class GenericExceptionHandler {
                         error.getDefaultMessage()
                 ));
 
-        return new DefaultResponseDTO(false, errorMap);
-    }
-
-    public static void throwNotFoundException(Logger logger, String message) {
-        logger.error(message);
-        throw new GenericException(message, HttpStatus.NOT_FOUND);
-    }
-
-    public static void throwConflictException(Logger logger, String message) {
-        logger.error(message);
-        throw new GenericException(message, HttpStatus.CONFLICT);
+        return errorMap;
     }
 }
 

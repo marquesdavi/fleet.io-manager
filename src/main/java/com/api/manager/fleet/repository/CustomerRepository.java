@@ -5,26 +5,25 @@ import com.api.manager.fleet.domain.customer.Customer;
 import com.api.manager.fleet.dto.response.DefaultPaginatedListDTO;
 import com.api.manager.fleet.exception.GenericException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.hibernate.query.SelectionQuery;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class CustomerRepository {
     private final SessionFactory sessionFactory;
-    private static final Logger logger = LoggerFactory.getLogger(CustomerRepository.class);
-
+    
     @Transactional(readOnly = true)
     public Optional<Customer> findById(Long id) {
         try (AutoClosableSession session = new AutoClosableSession(sessionFactory.openSession())) {
@@ -54,10 +53,10 @@ public class CustomerRepository {
         Session session = sessionFactory.openSession();
         Transaction transaction = session.beginTransaction();
         try {
-            logger.info("Saving customer");
+            log.info("Saving customer");
             session.persist(customer);
             transaction.commit();
-            logger.info("Customer saved successfully");
+            log.info("Customer saved successfully");
         } catch (HibernateException e) {
             if (transaction != null){
                 transaction.rollback();
@@ -94,10 +93,10 @@ public class CustomerRepository {
         Session session = sessionFactory.openSession();
         Transaction transaction = session.beginTransaction();
         try {
-            logger.info("Deleting customer");
+            log.info("Deleting customer");
             session.remove(customer);
             transaction.commit();
-            logger.info("Customer deleted successfully");
+            log.info("Customer deleted successfully");
         } catch (HibernateException e) {
             if (transaction != null){
                 transaction.rollback();
@@ -113,10 +112,10 @@ public class CustomerRepository {
         Session session = sessionFactory.openSession();
         Transaction transaction = session.beginTransaction();
         try {
-            logger.info("Transaction started");
+            log.info("Transaction started");
             session.merge(customer);
             transaction.commit();
-            logger.info("Transaction finished successfully");
+            log.info("Transaction finished successfully");
         } catch (HibernateException e) {
             if (transaction != null){
                 transaction.rollback();
@@ -128,7 +127,7 @@ public class CustomerRepository {
     }
 
     private void handleException(String message, HibernateException e) {
-        logger.error(message + ": " + e.getMessage());
+        log.error(message + ": " + e.getMessage());
         throw new GenericException(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

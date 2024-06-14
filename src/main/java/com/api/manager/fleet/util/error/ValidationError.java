@@ -11,7 +11,5 @@ public class ValidationError {
         this.message = message;
         this.invalidValue = invalidValue;
     }
-
-    // Getters and setters for field, message, and invalidValue (optional)
 }
 
