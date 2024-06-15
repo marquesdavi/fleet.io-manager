@@ -15,19 +15,22 @@
 - [x] User register
 - [x] Login with JWT Token
 - [x] Role based authorization
-- [ ] Tests
+- [ ] Integration Tests
+- [ ] Unit Tests
 
 ### Swagger
 - [x] Initial Settings
 - [x] Authentication
 
 ### Vehicle:
-- [ ] CRUD
-- [ ] Tests
+- [x] CRUD
+- [ ] Integration Tests
+- [ ] Unit Tests
 
 ### Customer:
 - [x] CRUD
-- [ ] Tests
+- [ ] Integration Tests
+- [ ] Unit Tests
 
 ## Technologies
 
